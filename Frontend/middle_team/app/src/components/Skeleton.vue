@@ -3,11 +3,11 @@
 
     <header class="head">
         <div class="head__logo">
-            <img src="../assets/logo.png" alt="Logo">
+            <!--<img src="../assets/logo.png" alt="Logo">-->
         </div>
         <div class="head__export">
             <i class="fa fa-cloud-download fa-2x" aria-hidden="true"></i>
-            <p>Export</p>
+            <button @click="exportFunction()">Export</button>
         </div>
         <img class="head__avatar" src="../assets/elvis.jpg" alt="Avatar">
     </header>
@@ -24,6 +24,14 @@
                         </router-link>
                         <router-link to="/2b-description" tag="li" class="">
                           <a>ΠΕΡΙΓΡΑΦΗ</a>
+                        </router-link>
+                      </ul>
+                    </li>
+                    <li>
+                      <a href="">ΑΝΑΛΥΣΗ ΑΓΟΡΑΣ</a>
+                      <ul>
+                        <router-link to="/market-general" tag="li" class="">
+                          <a>Γενικές</a>
                         </router-link>
                       </ul>
                     </li>
@@ -153,12 +161,231 @@
 </template>
 
 <script>
+
+import pdfMake from "pdfmake/build/pdfmake"
+import pdfFonts from "pdfmake/build/vfs_fonts"
+pdfMake.vfs = pdfFonts.pdfMake.vfs
+
 export default {
-  name: 'Skeleton',
+ 	name: 'Skeleton',
   data () {
     return {
       msg: 'Welcome to Your Vue.js App'
     }
+  },
+  methods: {
+  	// This function returns a parsed date from the db form(YYYYMMDD) into proper form with slashes(DD/MM/YYYY)
+  	dateParser(date){
+  		return String(date).slice(6) + "/" 
+	 		+ String(date).slice(4, 6) + "/"
+	 		+ String(date).slice(0, 4)
+  	},
+  	// Functions for dynamic PDFMake content generation based on the json
+	clientsFun(db) { 
+		var clientsArray = [] 			// Array to store the PDFMake content
+		var clientsObj = db["clients"]	// Store the object in a local variable
+
+		// Loop through the managers object and format the content in PDFMake form
+		for (var i = 0; i < clientsObj.length; i++){
+			clientsArray.push([{text: "ID: " 			+ clientsObj[i].ID},
+							   {text: "Όνοματεπώνυμο: " + clientsObj[i].Name}])
+		}
+		return clientsArray
+        },
+        sevenOneStartFun(db) { 
+		var strategyArray = [] 			// Array to store the PDFMake content
+		var strategyObj = db["strategy"]	// Store the object in a local variable
+
+		// Loop through the managers object and format the content in PDFMake form
+		for (var i = 0; i < strategyObj.length; i++){
+			strategyArray.push([{text: "ID επιχειρησιακού σχεδίου: " 			+ strategyObj[i].BusinessPlanId},
+							   {text: "Προβολή: " 			+ strategyObj[i].Promotion},
+							   {text: "Συνεισφορά: " 			+ strategyObj[i].Contribution},
+							   {text: "Είσοδος αγοράς: " 			+ strategyObj[i].MarketEntry},
+							   {text: "Δημόσιες σχέσεις: " 			+ strategyObj[i].PublicRelations},
+							   {text: "Αποφυγή: " + strategyObj[i].Avoid}])
+		}
+		return strategyArray
+        },
+        sevenTwoStartFun(db) { 
+		var marketingActionsArray = [] 			// Array to store the PDFMake content
+		var marketingActionsObj = db["marketingActions"]	// Store the object in a local variable
+
+		// Loop through the managers object and format the content in PDFMake form
+		for (var i = 0; i < marketingActionsObj.length; i++){
+			marketingActionsArray.push([{text: "ID: " 			+ marketingActionsObj[i].ID},
+							   {text: "ID επιχειρησιακού σχεδίου: " 			+ marketingActionsObj[i].BusinessPlanId},
+							   {text: "Τίτλος: " 			+ marketingActionsObj[i].Title},
+							   {text: "Χρόνος εκτέλεσης: " 			+ marketingActionsObj[i].ImplementationTime},
+							   {text: "Συχνότητα: " 			+ marketingActionsObj[i].Frequency},
+							   {text: "Κόστος εκτέλεσης: " 			+ marketingActionsObj[i].ImplementationCost},
+							   {text: "Συνολικό κόστος: " + marketingActionsObj[i].TotalCost}])
+		}
+		return marketingActionsArray
+         },
+         eightOneStartFun(db) { 
+		var startActionsArray = [] 			// Array to store the PDFMake content
+		var startActionsObj = db["startActions"]	// Store the object in a local variable
+
+		// Loop through the managers object and format the content in PDFMake form
+		for (var i = 0; i < startActionsObj.length; i++){
+			startActionsArray.push([{text: "ID: " 			+ startActionsObj[i].ID},
+							   {text: "ID επιχειρησιακού σχεδίου: " 			+ startActionsObj[i].BusinessPlanId},
+							   {text: "Όνομα: " 			+ startActionsObj[i].Name},
+							   {text: "Κόστος δράσης: " + startActionsObj[i].ActionCost}])
+		}
+		return startActionsArray
+         },
+         eightTwoStartFun(db) { 
+		var functionCostArray = [] 			// Array to store the PDFMake content
+		var functionCostObj = db["functionCost"]	// Store the object in a local variable
+
+		// Loop through the managers object and format the content in PDFMake form
+		for (var i = 0; i < functionCostObj.length; i++){
+			functionCostArray.push([{text: "ID: " 			+ functionCostObj[i].ID},
+							   {text: "ID επιχειρησιακού σχεδίου: " 			+ functionCostObj[i].BusinessPlanId},
+							   {text: "Όνομα: " 			+ functionCostObj[i].Name},
+							   {text: "Κόστος λειτουργίας: " + functionCostObj[i].FunctionCost}])
+		}
+		return functionCostArray
+         },
+         eightThreeStartFun(db) { 
+		var deadspotsArray = [] 			// Array to store the PDFMake content
+		var deadspotsObj = db["deadspots"]	// Store the object in a local variable
+
+		// Loop through the managers object and format the content in PDFMake form
+		for (var i = 0; i < deadspotsObj.length; i++){
+			deadspotsArray.push([{text: "ID προϊόντος: " 			+ deadspotsObj[i].ProductID},
+							   {text: "ID επιχειρησιακού σχεδίου: " 			+ deadspotsObj[i].BusinessPlanId},
+							   {text: "Σημείο: " + deadspotsObj[i].Spot}])
+		}
+		return deadspotsArray
+         },
+         nineStartFun(db) { 
+		var linksArray = [] 			// Array to store the PDFMake content
+		var linksObj = db["links"]	// Store the object in a local variable
+
+		// Loop through the managers object and format the content in PDFMake form
+		for (var i = 0; i < linksObj.length; i++){
+			linksArray.push([{text: "ID: " 			+ linksObj[i].ID},
+							   {text: "ID επιχειρησιακού σχεδίου: " 			+ linksObj[i].BusinessPlanId},
+							   {text: "URL: " 			+ linksObj[i].URL},
+							   {text: "Τίτλος: " 			+ linksObj[i].Title},
+							   {text: "Τομέας: " + linksObj[i].Section}])
+		}
+		return linksArray
+         },
+         tenStartFun(db) { 
+		var conclusionArray = [] 			// Array to store the PDFMake content
+		var conclusionObj = db["conclusion"]	// Store the object in a local variable
+
+		// Loop through the managers object and format the content in PDFMake form
+		for (var i = 0; i < conclusionObj.length; i++){
+			conclusionArray.push([{text: "ID επιχειρησιακού σχεδίου: " 			+ conclusionObj[i].BussinesPlanId},
+							   {text: "Κείμενο: " + conclusionObj[i].Text}])
+		}
+		return conclusionArray
+	 },
+    exportFunction(){
+    	var db = this.$store.state
+		// PDFMake code here
+		var docDefinition = {
+			// Content of the pdf document
+			content: [
+				// Section 1
+				{text: "Επιχειρηματικό Μοντέλο", style: "sectionHeader"},
+				" ",
+				// Subsection 1.1
+				// This content element is a complicated one, with extra "tags" like bold, underline, etc., all contained into the style. 
+				// Notice it is inside curly brackets.
+				{text: "1.1 Ταυτότητα Επιχείρησης:", style: "subSectionHeader"},
+				" ", // Newline
+				// This content element is a simple string element, no need for curly brackets, just comma after it.
+				"Όνομα επιχείρησης: " 	   + db["identity"][0].Name,
+				"Ημερομηνία δημιουργίας: " + this.dateParser(db["identity"][0].Date),
+				"Νομική μορφή: " 		   + db["identity"][0].LegalForm,
+				"Τύπος επιχείρησης: "      + db["identity"][0].OrderOfBusiness,
+				" ",
+				"Πελάτες: ",
+				// Due to the "ol" tag, it needs curly brackets. Equivalent to {ol: [firstItem, secondItem]} syntax.
+				{ol: this.clientsFun(db)},
+
+                                // Section 7
+				{text: "Χρηματοοικονομικός Σχεδιασμός", style: "sectionHeader"},
+				" ",
+				// Subsection 7.1
+				// This content element is a complicated one, with extra "tags" like bold, underline, etc., all contained into the style. 
+				// Notice it is inside curly brackets.
+				{text: "7.1 Στρατηγική:", style: "subSectionHeader"},
+				" ", // Newline
+				// Due to the "ol" tag, it needs curly brackets. Equivalent to {ol: [firstItem, secondItem]} syntax.
+				{ol: this.sevenOneStartFun(db)},
+                                " ",
+                                // Subsection 7.2
+				// This content element is a complicated one, with extra "tags" like bold, underline, etc., all contained into the style. 
+				// Notice it is inside curly brackets.
+				{text: "7.2 Ενέργειες marketing:", style: "subSectionHeader"},
+				" ", // Newline
+				// Due to the "ol" tag, it needs curly brackets. Equivalent to {ol: [firstItem, secondItem]} syntax.
+				{ol: this.sevenTwoStartFun(db)},
+                                " ",
+                                // Section 8
+				{text: "Χρονοδιάγραμμα", style: "sectionHeader"},
+				" ",
+				// Subsection 8.1
+				// This content element is a complicated one, with extra "tags" like bold, underline, etc., all contained into the style. 
+				// Notice it is inside curly brackets.
+				{text: "8.1 Ενέργειες εκκίνησης:", style: "subSectionHeader"},
+				" ", // Newline
+				// Due to the "ol" tag, it needs curly brackets. Equivalent to {ol: [firstItem, secondItem]} syntax.
+				{ol: this.eightOneStartFun(db)},
+                                " ",
+                                // Subsection 8.2
+				// This content element is a complicated one, with extra "tags" like bold, underline, etc., all contained into the style. 
+				// Notice it is inside curly brackets.
+				{text: "8.2 Κόστος λειτουργίας:", style: "subSectionHeader"},
+				" ", // Newline
+				// Due to the "ol" tag, it needs curly brackets. Equivalent to {ol: [firstItem, secondItem]} syntax.
+				{ol: this.eightTwoStartFun(db)},
+                                {text: "Συνολικό κόστος λειτουργίας: " + String(db.functionCost.FunctionsTotalCost) + "€", bold: true},
+                                " ",
+                                // Subsection 8.3
+				// This content element is a complicated one, with extra "tags" like bold, underline, etc., all contained into the style. 
+				// Notice it is inside curly brackets.
+				{text: "8.3 Νεκρά σημεία:", style: "subSectionHeader"},
+				" ", // Newline
+				// Due to the "ol" tag, it needs curly brackets. Equivalent to {ol: [firstItem, secondItem]} syntax.
+				{ol: this.eightThreeStartFun(db)},
+                                " ",
+                                // Section 9
+				{text: "Παράρτημα", style: "sectionHeader"},
+				" ",
+				// Due to the "ol" tag, it needs curly brackets. Equivalent to {ol: [firstItem, secondItem]} syntax.
+				{ol: this.nineStartFun(db)},
+                                " ",
+                                // Section 10
+				{text: "Σύνοψη", style: "sectionHeader"},
+				" ",
+				// Due to the "ol" tag, it needs curly brackets. Equivalent to {ol: [firstItem, secondItem]} syntax.
+				{ol: this.tenStartFun(db)},
+                                " "," ",
+
+			], // Content array end
+
+			styles: {
+			    sectionHeader: {
+			      bold: true, underline: true, fontSize: 20, alignment: "left", decoration:"underline"
+			    },
+			    subSectionHeader: {
+			      bold: true, underline: true, fontSize: 15, alignment: "left", decoration:"underline"
+			    }
+			  }
+
+		} // docDefinition end
+			
+		// Download the PDF, named after the business name given in section 1.1
+		pdfMake.createPdf(docDefinition).download(db["identity"][0].Name + "BusinessPlan.pdf");
+    } // ExportFun end		
   }
 }
 </script>
